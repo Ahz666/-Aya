@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القرآن الكريم</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .ayah {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .like {
+            background: gray;
+            color: white;
+        }
+        .like.liked {
+            background: green;
+        }
+        .share { background: blue; color: white; }
+        .next { background: gray; color: white; }
+        nav {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <button onclick="showPage('ayah-page')">آية اليوم</button>
+        <button onclick="showPage('quran-page')">القرآن الكريم</button>
+    </nav>
+
+    <div id="ayah-page" class="container">
+        <h1>آية اليوم</h1>
+        <p class="ayah" id="ayah">تحميل...</p>
+        <button class="like" id="like-btn" onclick="likeAyah()">إعجاب ❤️ <span id="like-count">0</span></button>
+        <button class="share" onclick="shareAyah()">مشاركة 📤</button>
+        <button class="next" onclick="nextAyah()">الآية التالية 🔄</button>
+    </div>
+
+    <div id="quran-page" class="container" style="display: none;">
+        <h1>القرآن الكريم</h1>
+        <select id="surah-select" onchange="playSurah()"></select>
+        <audio id="audio-player" controls style="margin-top: 20px; width: 100%;"></audio>
+    </div>
+
+    <script>
+        let quranData = {};
+        let currentAyah = "";
+        let likeCount = 0;
+        let liked = false;
+
+        fetch("https://api.alquran.cloud/v1/quran/ar.alafasy")
+            .then(response => response.json())
+            .then(data => {
+                quranData = data.data;
+                populateSurahList();
+                loadRandomAyah();
+            });
+
+        function populateSurahList() {
+            const select = document.getElementById("surah-select");
+            quranData.surahs.forEach(surah => {
+                let option = document.createElement("option");
+                option.value = surah.number;
+                option.textContent = surah.name;
+                select.appendChild(option);
+            });
+        }
+
+        function playSurah() {
+            const surahNumber = document.getElementById("surah-select").value;
+            const audioPlayer = document.getElementById("audio-player");
+            audioPlayer.src = `https://server8.mp3quran.net/afs/${surahNumber.toString().padStart(3, '0')}.mp3`;
+            audioPlayer.play();
+        }
+
+        function loadRandomAyah() {
+            const surah = quranData.surahs[Math.floor(Math.random() * 114)];
+            const ayah = surah.ayahs[Math.floor(Math.random() * surah.ayahs.length)];
+            currentAyah = ayah.text;
+            document.getElementById('ayah').innerText = currentAyah;
+            likeCount = 0;
+            liked = false;
+            document.getElementById("like-count").innerText = likeCount;
+            document.getElementById("like-btn").classList.remove("liked");
+        }
+
+        function nextAyah() {
+            loadRandomAyah();
+        }
+
+        function likeAyah() {
+            liked = !liked;
+            likeCount = liked ? likeCount + 1 : likeCount - 1;
+            document.getElementById("like-count").innerText = likeCount;
+            document.getElementById("like-btn").classList.toggle("liked");
+        }
+
+        function shareAyah() {
+            navigator.clipboard.writeText(currentAyah).then(() => {
+                alert("تم نسخ الآية! يمكنك مشاركتها الآن. 📋");
+            });
+        }
+
+        function showPage(pageId) {
+            document.getElementById("ayah-page").style.display = pageId === "ayah-page" ? "block" : "none";
+            document.getElementById("quran-page").style.display = pageId === "quran-page" ? "block" : "none";
+        }
+    </script>
+</body>
+</html>
