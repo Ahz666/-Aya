@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>القرآن الكريم</title>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            direction: rtl;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .ayah {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .like { background: #28a745; color: white; }
+        .share { background: #007bff; color: white; }
+        .next { background: #6c757d; color: white; }
+        nav {
+            margin-bottom: 20px;
+        }
+        nav button {
+            background: #f39c12;
+            color: white;
+            margin: 5px;
+        }
+        .donate {
+            background: gold;
+            color: black;
+            font-weight: bold;
+        }
+        .social-links a {
+            display: block;
+            margin: 10px 0;
+            font-size: 18px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <button onclick="showPage('ayah-page')">آية اليوم</button>
+        <button onclick="showPage('quran-page')">القرآن الكريم</button>
+        <button onclick="showPage('about-page')">عن الموقع</button>
+    </nav>
+
+    <div id="ayah-page" class="container">
+        <h1>آية اليوم</h1>
+        <p class="ayah" id="ayah">تحميل...</p>
+        <button class="like" onclick="likeAyah()">إعجاب ❤️</button>
+        <button class="share" onclick="shareAyah()">مشاركة 🔄</button>
+        <button class="next" onclick="nextAyah()">الآية التالية</button>
+    </div>
+
+    <div id="quran-page" class="container" style="display: none;">
+        <h1>القرآن الكريم</h1>
+        <select id="surah-select" onchange="loadSurah()"></select>
+        <audio id="audio-player" controls style="margin-top: 20px; width: 100%;"></audio>
+    </div>
+
+    <div id="about-page" class="container" style="display: none;">
+        <h1>عن الموقع</h1>
+        <p>هذا الموقع يهدف إلى نشر القرآن الكريم بطريقة سهلة وبسيطة، حيث يمكنك قراءة آية عشوائية يوميًا أو الاستماع إلى سور القرآن الكريم كاملة.</p>
+
+        <h3>ادعمنا</h3>
+        <p>إذا أعجبك الموقع، يمكنك دعمه عبر التبرع:</p>
+        <a href="https://www.paypal.com/paypalme/Ahz888" target="_blank">
+            <button class="donate">تبرع عبر PayPal</button>
+        </a>
+        <a href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank">
+            <button class="donate">Buy Me a Coffee ☕</button>
+        </a>
+
+        <h3>تابعني على وسائل التواصل</h3>
+        <div class="social-links">
+            <a href="https://github.com/ahz666" target="_blank">📌 GitHub</a>
+            <a href="https://twitter.com/Ahz88888" target="_blank">🐦 Twitter</a>
+            <a href="https://www.instagram.com/YOUR_USERNAME" target="_blank">📷 Instagram</a>
+        </div>
+    </div>
+
+    <script>
+        let quranData = {};
+        fetch("https://api.alquran.cloud/v1/quran/ar.alafasy")
+            .then(response => response.json())
+            .then(data => {
+                quranData = data.data;
+                populateSurahList();
+                loadRandomAyah();
+            });
+
+        function populateSurahList() {
+            const select = document.getElementById("surah-select");
+            quranData.surahs.forEach(surah => {
+                let option = document.createElement("option");
+                option.value = surah.number;
+                option.textContent = surah.name;
+                select.appendChild(option);
+            });
+        }
+
+        function loadSurah() {
+            const surahNumber = document.getElementById("surah-select").value;
+            const audioPlayer = document.getElementById("audio-player");
+            audioPlayer.src = `https://server8.mp3quran.net/afs/${surahNumber.toString().padStart(3, '0')}.mp3`;
+        }
+
+        function loadRandomAyah() {
+            const surah = quranData.surahs[Math.floor(Math.random() * 114)];
+            const ayah = surah.ayahs[Math.floor(Math.random() * surah.ayahs.length)];
+            document.getElementById('ayah').innerText = ayah.text;
+        }
+
+        function nextAyah() {
+            loadRandomAyah();
+        }
+
+        function likeAyah() {
+            alert("تم تسجيل إعجابك بهذه الآية! ❤️");
+        }
+
+        function shareAyah() {
+            const ayahText = document.getElementById('ayah').innerText;
+            navigator.clipboard.writeText(ayahText);
+            alert("تم نسخ الآية، يمكنك الآن مشاركتها! 🔄");
+        }
+
+        function showPage(pageId) {
+            document.getElementById("ayah-page").style.display = "none";
+            document.getElementById("quran-page").style.display = "none";
+            document.getElementById("about-page").style.display = "none";
+            document.getElementById(pageId).style.display = "block";
+        }
+    </script>
+</body>
+</html>
