@@ -1,158 +1,226 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القرآن الكريم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* Apply Tajawal font globally */
         body {
             font-family: 'Tajawal', sans-serif;
-            text-align: center;
-            background-color: #f8f9fa;
-            direction: rtl;
         }
-        .container {
-            width: 90%;
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .ayah {
-            font-size: 24px;
-            margin: 20px 0;
-            color: #2c3e50;
-        }
-        button {
-            margin: 10px;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        /* Custom styles for the notification */
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 8px;
+            background-color: #2c3e50;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, bottom 0.5s ease-in-out;
+            z-index: 1000;
             font-size: 16px;
         }
-        .like { background: #28a745; color: white; }
-        .share { background: #007bff; color: white; }
-        .next { background: #6c757d; color: white; }
-        nav {
-            margin-bottom: 20px;
+        #notification.show {
+            opacity: 1;
+            bottom: 30px;
         }
-        nav button {
-            background: #f39c12;
-            color: white;
-            margin: 5px;
+        /* Ensure icons align nicely with text in buttons */
+        button img.icon {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+            width: 18px;
+            height: 18px;
         }
-        .donate {
-            background: gold;
-            color: black;
-            font-weight: bold;
-        }
+        /* Style for social links */
         .social-links a {
-            display: block;
+            display: flex;
+            align-items: center;
             margin: 10px 0;
             font-size: 18px;
             text-decoration: none;
             color: #007bff;
             font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .social-links a:hover {
+            color: #0056b3;
+        }
+        .social-links img.icon {
+            margin-left: 10px;
+            width: 24px;
+            height: 24px;
+        }
+        /* Ensure audio player looks consistent */
+        audio {
+            border-radius: 8px;
         }
     </style>
 </head>
-<body>
-    <nav>
-        <button onclick="showPage('ayah-page')">آية اليوم</button>
-        <button onclick="showPage('quran-page')">القرآن الكريم</button>
-        <button onclick="showPage('about-page')">عن الموقع</button>
+<body class="bg-gray-100 text-gray-800">
+
+    <div id="notification"></div>
+
+    <nav class="bg-white shadow-md p-4 mb-8 text-center">
+        <button onclick="showPage('ayah')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg m-1 transition duration-300 ease-in-out">آية اليوم</button>
+        <button onclick="showPage('quran')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg m-1 transition duration-300 ease-in-out">القرآن الكريم</button>
+        <button onclick="showPage('about')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg m-1 transition duration-300 ease-in-out">عن الموقع</button>
     </nav>
 
-    <div id="ayah-page" class="container">
-        <h1>آية اليوم</h1>
-        <p class="ayah" id="ayah">تحميل...</p>
-        <button class="like" onclick="likeAyah()">إعجاب ❤️</button>
-        <button class="share" onclick="shareAyah()">مشاركة 🔄</button>
-        <button class="next" onclick="nextAyah()">الآية التالية</button>
-    </div>
+    <main class="container mx-auto px-4 py-2 max-w-2xl">
 
-    <div id="quran-page" class="container" style="display: none;">
-        <h1>القرآن الكريم</h1>
-        <select id="surah-select" onchange="loadSurah()"></select>
-        <audio id="audio-player" controls style="margin-top: 20px; width: 100%;"></audio>
-    </div>
-
-    <div id="about-page" class="container" style="display: none;">
-        <h1>عن الموقع</h1>
-        <p>هذا الموقع يهدف إلى نشر القرآن الكريم بطريقة سهلة وبسيطة، حيث يمكنك قراءة آية عشوائية يوميًا أو الاستماع إلى سور القرآن الكريم كاملة.</p>
-
-        <h3>ادعمنا</h3>
-        <p>إذا أعجبك الموقع، يمكنك دعمه عبر التبرع:</p>
-        <a href="https://www.paypal.com/paypalme/Ahz888" target="_blank">
-            <button class="donate">تبرع عبر PayPal</button>
-        </a>
-        <a href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank">
-            <button class="donate">Buy Me a Coffee ☕</button>
-        </a>
-
-        <h3>تابعني على وسائل التواصل</h3>
-        <div class="social-links">
-            <a href="https://github.com/ahz666" target="_blank">📌 GitHub</a>
-            <a href="https://twitter.com/Ahz88888" target="_blank">🐦 Twitter</a>
-            <a href="https://www.instagram.com/YOUR_USERNAME" target="_blank">📷 Instagram</a>
+        <div id="ayah-page" class="bg-white p-6 rounded-xl shadow-lg text-center">
+            <h1 class="text-3xl font-bold mb-4 text-teal-700">آية اليوم</h1>
+            <div class="min-h-[100px]">
+                <p class="text-2xl leading-relaxed my-6 text-gray-700" id="ayah-text">تحميل...</p>
+                <p class="text-sm text-gray-500 mb-6" id="ayah-info"></p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3">
+                <button class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-lg transition duration-300 ease-in-out flex items-center" onclick="likeAyah()">
+                    إعجاب <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/heart.svg" alt="Like" class="icon w-5 h-5 mr-2"/>
+                </button>
+                <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg transition duration-300 ease-in-out flex items-center" onclick="shareAyah()">
+                    مشاركة <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/share-2.svg" alt="Share" class="icon w-5 h-5 mr-2"/>
+                </button>
+                <button class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-5 rounded-lg transition duration-300 ease-in-out flex items-center" onclick="nextAyah()">
+                    التالية <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/arrow-right.svg" alt="Next" class="icon w-5 h-5 mr-2"/>
+                </button>
+            </div>
         </div>
-    </div>
+
+        <div id="quran-page" class="bg-white p-6 rounded-xl shadow-lg text-center" style="display: none;">
+            <h1 class="text-3xl font-bold mb-6 text-teal-700">القرآن الكريم</h1>
+            <label for="surah-select" class="block mb-2 text-lg font-medium text-gray-700">اختر السورة:</label>
+            <select id="surah-select" onchange="loadSurahAudio()" class="w-full p-3 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-teal-500 text-lg">
+                <option value="">-- اختر سورة --</option>
+            </select>
+            <audio id="audio-player" controls class="w-full mt-4 rounded-lg"></audio>
+        </div>
+
+        <div id="about-page" class="bg-white p-6 rounded-xl shadow-lg text-center" style="display: none;">
+            <h1 class="text-3xl font-bold mb-4 text-teal-700">عن الموقع</h1>
+            <p class="text-lg leading-relaxed mb-6 text-gray-700">هذا الموقع يهدف إلى نشر القرآن الكريم بطريقة سهلة وبسيطة، حيث يمكنك قراءة آية عشوائية يوميًا أو الاستماع إلى سور القرآن الكريم كاملة.</p>
+
+            <h3 class="text-2xl font-semibold mb-3 text-teal-600">ادعمنا</h3>
+            <p class="text-lg mb-4 text-gray-700">إذا أعجبك الموقع، يمكنك دعمه عبر التبرع:</p>
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <a href="https://www.paypal.com/paypalme/Ahz888" target="_blank" rel="noopener noreferrer" class="inline-block">
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        تبرع عبر PayPal <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/paypal.svg" alt="PayPal" class="icon w-5 h-5 mr-2" onerror="this.alt='PayPal'; this.src='https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/credit-card.svg';"/>
+                    </button>
+                </a>
+                <a href="https://www.buymeacoffee.com/YOUR_USERNAME" target="_blank" rel="noopener noreferrer" class="inline-block">
+                    <button class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-5 rounded-lg transition duration-300 ease-in-out flex items-center">
+                        اشترِ لي قهوة <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/coffee.svg" alt="Coffee" class="icon w-5 h-5 mr-2"/>
+                    </button>
+                </a>
+            </div>
+
+            <h3 class="text-2xl font-semibold mb-4 text-teal-600">تابعني على وسائل التواصل</h3>
+            <div class="social-links flex flex-col items-center">
+                <a href="https://github.com/ahz666" target="_blank" rel="noopener noreferrer">
+                    GitHub <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/github.svg" alt="GitHub" class="icon"/>
+                </a>
+                <a href="https://twitter.com/Ahz88888" target="_blank" rel="noopener noreferrer">
+                    Twitter <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/twitter.svg" alt="Twitter" class="icon"/>
+                </a>
+                <a href="https://www.instagram.com/YOUR_USERNAME" target="_blank" rel="noopener noreferrer">
+                    Instagram <img src="https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/instagram.svg" alt="Instagram" class="icon"/>
+                </a>
+            </div>
+        </div>
+    </main>
 
     <script>
-        let quranData = {};
-        fetch("https://api.alquran.cloud/v1/quran/ar.alafasy")
-            .then(response => response.json())
-            .then(data => {
-                quranData = data.data;
-                populateSurahList();
-                loadRandomAyah();
-            });
+        // --- State Variables ---
+        let quranData = null; // تخزين بيانات القرآن
+        let currentAyah = null; // الآية الحالية
+        const API_URL = "https://api.alquran.cloud/v1/quran/ar.alafasy";
 
+        // --- DOM Elements ---
+        const ayahTextElement = document.getElementById('ayah-text');
+        const ayahInfoElement = document.getElementById('ayah-info');
+        const surahSelectElement = document.getElementById('surah-select');
+        const audioPlayerElement = document.getElementById('audio-player');
+        const notificationElement = document.getElementById('notification');
+        const pages = {
+            ayah: document.getElementById('ayah-page'),
+            quran: document.getElementById('quran-page'),
+            about: document.getElementById('about-page')
+        };
+
+        // --- Functions ---
+
+        // جلب بيانات القرآن من الـ API
+        async function fetchQuranData() {
+            try {
+                ayahTextElement.innerText = "جاري التحميل...";
+                ayahInfoElement.innerText = "";
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (data.code === 200 && data.status === "OK") {
+                    quranData = data.data;
+                    populateSurahList();
+                    loadRandomAyah();
+                } else {
+                    throw new Error("API returned non-OK status: " + data.status);
+                }
+            } catch (error) {
+                console.error("Error fetching Quran data:", error);
+                ayahTextElement.innerText = "حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا.";
+                ayahInfoElement.innerText = "";
+            }
+        }
+
+        // تعبئة قائمة السور في الـ dropdown
         function populateSurahList() {
-            const select = document.getElementById("surah-select");
+            if (!quranData || !quranData.surahs) return;
+            surahSelectElement.innerHTML = '<option value="">-- اختر سورة --</option>';
             quranData.surahs.forEach(surah => {
                 let option = document.createElement("option");
                 option.value = surah.number;
-                option.textContent = surah.name;
-                select.appendChild(option);
+                option.textContent = `${surah.number}. ${surah.name} (${surah.englishName})`;
+                surahSelectElement.appendChild(option);
             });
         }
 
-        function loadSurah() {
-            const surahNumber = document.getElementById("surah-select").value;
-            const audioPlayer = document.getElementById("audio-player");
-            audioPlayer.src = `https://server8.mp3quran.net/afs/${surahNumber.toString().padStart(3, '0')}.mp3`;
+        // تحميل الصوت للسورة المختارة
+        function loadSurahAudio() {
+            const surahNumber = surahSelectElement.value;
+            if (!surahNumber) {
+                audioPlayerElement.src = '';
+                return;
+            }
+            const formattedSurahNumber = surahNumber.toString().padStart(3, '0');
+            audioPlayerElement.src = `https://server8.mp3quran.net/afs/${formattedSurahNumber}.mp3`;
         }
 
+        // تحميل وعرض آية عشوائية
         function loadRandomAyah() {
-            const surah = quranData.surahs[Math.floor(Math.random() * 114)];
-            const ayah = surah.ayahs[Math.floor(Math.random() * surah.ayahs.length)];
-            document.getElementById('ayah').innerText = ayah.text;
+            if (!quranData || !quranData.surahs) {
+                ayahTextElement.innerText = "بيانات القرآن غير متوفرة.";
+                ayahInfoElement.innerText = "";
+                return;
+            }
+            const randomSurahIndex = Math.floor(Math.random() * quranData.surahs.length);
+            const surah = quranData.surahs[randomSurahIndex];
+            const randomAyahIndex = Math.floor(Math.random() * surah.ayahs.length);
+            currentAyah = surah.ayahs[randomAyahIndex];
+            ayahTextElement.innerText = currentAyah.text;
+            ayahInfoElement.innerText = `سورة ${surah.name} - آية ${currentAyah.numberInSurah}`;
         }
 
+        // تحميل الآية التالية
         function nextAyah() {
             loadRandomAyah();
-        }
-
-        function likeAyah() {
-            alert("تم تسجيل إعجابك بهذه الآية! ❤️");
-        }
-
-        function shareAyah() {
-            const ayahText = document.getElementById('ayah').innerText;
-            navigator.clipboard.writeText(ayahText);
-            alert("تم نسخ الآية، يمكنك الآن مشاركتها! 🔄");
-        }
-
-        function showPage(pageId) {
-            document.getElementById("ayah-page").style.display = "none";
-            document.getElementById("quran-page").style.display = "none";
-            document.getElementById("about-page").style.display = "none";
-            document.getElementById(pageId).style.display = "block";
-        }
-    </script>
-</body>
-</html>
+       
