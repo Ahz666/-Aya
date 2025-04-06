@@ -223,4 +223,90 @@
         // تحميل الآية التالية
         function nextAyah() {
             loadRandomAyah();
-       
+        }
+
+        // التعامل مع زر "إعجاب"
+        function likeAyah() {
+            showNotification("تم تسجيل إعجابك بهذه الآية! ❤️");
+        }
+
+        // التعامل مع زر "مشاركة" لنسخ نص الآية
+        function shareAyah() {
+            if (!currentAyah || !currentAyah.text) {
+                showNotification("لا توجد آية لعرضها أو نسخها.");
+                return;
+            }
+            const ayahTextToShare = currentAyah.text;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(ayahTextToShare)
+                    .then(() => {
+                        showNotification("تم نسخ الآية للمشاركة! 🔄");
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy Ayah: ', err);
+                        showNotification("حدث خطأ أثناء نسخ الآية.");
+                        try {
+                            const textArea = document.createElement("textarea");
+                            textArea.value = ayahTextToShare;
+                            textArea.style.position = "fixed";
+                            textArea.style.left = "-9999px";
+                            textArea.style.opacity = 0;
+                            document.body.appendChild(textArea);
+                            textArea.focus();
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            showNotification("تم نسخ الآية للمشاركة! 🔄");
+                        } catch (fallbackErr) {
+                            console.error('Fallback copy failed: ', fallbackErr);
+                            showNotification("لم نتمكن من نسخ الآية تلقائيًا.");
+                        }
+                    });
+            } else {
+                showNotification("المتصفح لا يدعم النسخ التلقائي.");
+            }
+        }
+
+        // عرض إشعار مؤقت
+        let notificationTimeout;
+        function showNotification(message) {
+            clearTimeout(notificationTimeout);
+            notificationElement.textContent = message;
+            notificationElement.classList.add('show');
+            notificationTimeout = setTimeout(() => {
+                notificationElement.classList.remove('show');
+            }, 3000);
+        }
+
+        // عرض الصفحة المطلوبة وإخفاء الباقي
+        function showPage(pageId) {
+            const validPageIds = ['ayah', 'quran', 'about'];
+            if (!validPageIds.includes(pageId)) {
+                console.error("Invalid page ID:", pageId);
+                return;
+            }
+            Object.values(pages).forEach(page => {
+                if (page) page.style.display = 'none';
+            });
+            if (pages[pageId]) {
+                pages[pageId].style.display = 'block';
+            } else {
+                console.error("Page element not found for ID:", pageId);
+            }
+            if (pageId === 'quran' && surahSelectElement.options.length <= 1 && quranData) {
+                populateSurahList();
+            }
+        }
+
+        // التهيئة الأولية عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchQuranData();
+            if (pages.ayah) {
+                showPage('ayah');
+            } else {
+                console.error("Default page 'ayah-page' not found on DOMContentLoaded.");
+            }
+        });
+    </script>
+</body>
+</html>
